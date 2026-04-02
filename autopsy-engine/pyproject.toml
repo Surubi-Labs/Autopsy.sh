@@ -8,7 +8,10 @@ version = "0.1.0"
 description = "Git repository analysis engine for Autopsy"
 license = "MIT"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "tiktoken>=0.7",
+    "openai>=1.50",
+]
 
 [tool.hatch.build.targets.wheel]
 packages = ["autopsy"]
