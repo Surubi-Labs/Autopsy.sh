@@ -22,6 +22,8 @@ def main() -> None:
 
     if command == "extract":
         _handle_extract()
+    elif command == "report":
+        _handle_report()
     else:
         print(f"Unknown command: {command}", file=sys.stderr)
         _print_usage()
@@ -58,11 +60,54 @@ def _handle_extract() -> None:
         sys.exit(1)
 
 
+def _handle_report() -> None:
+    """Handle the 'report' subcommand. Reads metrics JSON from stdin."""
+    import os
+
+    from autopsy.ai.chunker import chunk_docs
+    from autopsy.ai.reporter import generate_report
+    from autopsy.models import DocExtraction
+
+    api_key = os.environ.get("OPENAI_API_KEY")
+    if not api_key:
+        print("Error: OPENAI_API_KEY environment variable is required", file=sys.stderr)
+        sys.exit(1)
+
+    try:
+        input_data = json.load(sys.stdin)
+    except json.JSONDecodeError as e:
+        print(f"Error: Invalid JSON input: {e}", file=sys.stderr)
+        sys.exit(1)
+
+    metrics_json = json.dumps(input_data.get("metrics", input_data), indent=2)
+
+    # Extract docs from input if present
+    raw_docs = input_data.get("docs", [])
+    docs = [DocExtraction.from_dict(d) for d in raw_docs]
+    chunks = chunk_docs(docs)
+
+    try:
+        from openai import OpenAI
+
+        client = OpenAI(api_key=api_key)
+        report = generate_report(
+            client=client,
+            metrics_json=metrics_json,
+            chunks=chunks,
+            previous_summary=input_data.get("previous_summary"),
+        )
+        print(report)
+    except Exception as e:
+        print(f"Error generating report: {e}", file=sys.stderr)
+        sys.exit(1)
+
+
 def _print_usage() -> None:
     """Print CLI usage."""
     print("Usage: autopsy-engine <command> [args]", file=sys.stderr)
     print("Commands:", file=sys.stderr)
     print("  extract <repo-path>  Extract git data from a repository", file=sys.stderr)
+    print("  report               Generate AI report (reads JSON from stdin)", file=sys.stderr)
 
 
 if __name__ == "__main__":
