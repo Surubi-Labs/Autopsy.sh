@@ -1,0 +1,24 @@
+spring:
+  application:
+    name: autopsy-api
+
+  datasource:
+    url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/autopsy}
+    username: ${POSTGRES_USER:autopsy}
+    password: ${POSTGRES_PASSWORD:autopsy}
+    driver-class-name: org.postgresql.Driver
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+
+  main:
+    web-application-type: none
+
+server:
+  port: ${SERVER_PORT:8080}
