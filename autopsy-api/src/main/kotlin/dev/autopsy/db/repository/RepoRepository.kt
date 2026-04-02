@@ -10,4 +10,7 @@ interface RepoRepository {
     fun findActiveByOrgId(orgId: UUID): List<RepoEntity>
     fun save(orgId: UUID, name: String, gitUrl: String, defaultBranch: String = "main"): RepoEntity
     fun updateLastAnalyzed(id: UUID, sha: String, analyzedAt: Instant): Unit
+    fun deleteById(id: UUID): Unit
+    fun countByOrgId(orgId: UUID): Int
+    fun findActiveBySchedule(schedule: String): List<RepoEntity>
 }

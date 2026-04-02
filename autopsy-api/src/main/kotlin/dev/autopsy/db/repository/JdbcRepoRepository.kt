@@ -52,4 +52,21 @@ class JdbcRepoRepository(
             .addValue("analyzedAt", Timestamp.from(analyzedAt))
         jdbc.update(sql, params)
     }
+
+    override fun deleteById(id: UUID) {
+        jdbc.update("DELETE FROM repositories WHERE id = :id", MapSqlParameterSource("id", id))
+    }
+
+    override fun countByOrgId(orgId: UUID): Int {
+        return jdbc.queryForObject(
+            "SELECT COUNT(*) FROM repositories WHERE org_id = :orgId",
+            MapSqlParameterSource("orgId", orgId),
+            Int::class.java,
+        ) ?: 0
+    }
+
+    override fun findActiveBySchedule(schedule: String): List<RepoEntity> {
+        val sql = "SELECT * FROM repositories WHERE active = true AND schedule = :schedule"
+        return jdbc.query(sql, MapSqlParameterSource("schedule", schedule)) { rs, _ -> RepoEntity.fromRow(rs) }
+    }
 }

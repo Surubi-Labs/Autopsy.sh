@@ -40,4 +40,18 @@ class JdbcReportRepository(
             .addValue("riskScore", riskScore)
         return jdbc.queryForObject(sql, params) { rs, _ -> Report.fromRow(rs) }!!
     }
+
+    override fun findByRepoIdPaginated(repoId: UUID, limit: Int, offset: Int): List<Report> {
+        val sql = "SELECT * FROM reports WHERE repo_id = :repoId ORDER BY created_at DESC LIMIT :limit OFFSET :offset"
+        val params = MapSqlParameterSource()
+            .addValue("repoId", repoId).addValue("limit", limit).addValue("offset", offset)
+        return jdbc.query(sql, params) { rs, _ -> Report.fromRow(rs) }
+    }
+
+    override fun countByRepoId(repoId: UUID): Int {
+        return jdbc.queryForObject(
+            "SELECT COUNT(*) FROM reports WHERE repo_id = :repoId",
+            MapSqlParameterSource("repoId", repoId), Int::class.java,
+        ) ?: 0
+    }
 }

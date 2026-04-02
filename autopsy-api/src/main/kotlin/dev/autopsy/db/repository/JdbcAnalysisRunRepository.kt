@@ -50,4 +50,18 @@ class JdbcAnalysisRunRepository(
         val sql = "UPDATE analysis_runs SET status = 'completed', completed_at = now() WHERE id = :id"
         jdbc.update(sql, MapSqlParameterSource("id", id))
     }
+
+    override fun findByRepoIdPaginated(repoId: UUID, limit: Int, offset: Int): List<AnalysisRun> {
+        val sql = "SELECT * FROM analysis_runs WHERE repo_id = :repoId ORDER BY created_at DESC LIMIT :limit OFFSET :offset"
+        val params = MapSqlParameterSource()
+            .addValue("repoId", repoId).addValue("limit", limit).addValue("offset", offset)
+        return jdbc.query(sql, params) { rs, _ -> AnalysisRun.fromRow(rs) }
+    }
+
+    override fun countByRepoId(repoId: UUID): Int {
+        return jdbc.queryForObject(
+            "SELECT COUNT(*) FROM analysis_runs WHERE repo_id = :repoId",
+            MapSqlParameterSource("repoId", repoId), Int::class.java,
+        ) ?: 0
+    }
 }

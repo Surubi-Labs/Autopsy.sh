@@ -8,4 +8,6 @@ interface ReportRepository {
     fun findByRepoId(repoId: UUID): List<Report>
     fun findLatestByRepoId(repoId: UUID): Report?
     fun save(runId: UUID, repoId: UUID, markdown: String, summary: String?, riskScore: Double?): Report
+    fun findByRepoIdPaginated(repoId: UUID, limit: Int, offset: Int): List<Report>
+    fun countByRepoId(repoId: UUID): Int
 }
