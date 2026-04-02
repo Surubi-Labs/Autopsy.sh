@@ -51,6 +51,21 @@ class JdbcMetricRepository(
         return jdbc.queryForObject(sql, params) { rs, _ -> Metric.fromRow(rs) }!!
     }
 
+    override fun findByRepoIdAndModulePath(repoId: UUID, modulePath: String): List<Metric> {
+        val sql = "SELECT * FROM metrics WHERE repo_id = :repoId AND module_path = :path ORDER BY computed_at DESC"
+        val params = MapSqlParameterSource().addValue("repoId", repoId).addValue("path", modulePath)
+        return jdbc.query(sql, params) { rs, _ -> Metric.fromRow(rs) }
+    }
+
+    override fun findLatestByRepoIdGrouped(repoId: UUID): List<Metric> {
+        val sql = """
+            SELECT DISTINCT ON (metric_type) *
+            FROM metrics WHERE repo_id = :repoId
+            ORDER BY metric_type, computed_at DESC
+        """.trimIndent()
+        return jdbc.query(sql, MapSqlParameterSource("repoId", repoId)) { rs, _ -> Metric.fromRow(rs) }
+    }
+
     private fun jsonbParam(json: String): PGobject =
         PGobject().apply {
             type = "jsonb"

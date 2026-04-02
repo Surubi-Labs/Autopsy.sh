@@ -10,4 +10,6 @@ interface AnalysisRunRepository {
     fun updateStatus(id: UUID, status: String, stage: String?, error: String?): Unit
     fun updateCommitRange(id: UUID, commitRange: String): Unit
     fun markCompleted(id: UUID): Unit
+    fun findByRepoIdPaginated(repoId: UUID, limit: Int, offset: Int): List<AnalysisRun>
+    fun countByRepoId(repoId: UUID): Int
 }
