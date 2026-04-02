@@ -17,8 +17,24 @@ spring:
       host: ${REDIS_HOST:localhost}
       port: ${REDIS_PORT:6379}
 
-  main:
-    web-application-type: none
+  mvc:
+    problemdetails:
+      enabled: true
+
+  task:
+    scheduling:
+      pool:
+        size: 2
 
 server:
   port: ${SERVER_PORT:8080}
+
+autopsy:
+  jwt:
+    secret: ${JWT_SECRET:this-is-a-dev-secret-that-must-be-changed-in-production-256bits}
+    expiration-hours: ${JWT_EXPIRATION_HOURS:72}
+  github:
+    client-id: ${GITHUB_CLIENT_ID:}
+    client-secret: ${GITHUB_CLIENT_SECRET:}
+  cors:
+    allowed-origins: ${CORS_ORIGINS:http://localhost:3000}

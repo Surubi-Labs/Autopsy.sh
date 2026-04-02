@@ -1,0 +1,19 @@
+spring:
+  flyway:
+    enabled: false
+  datasource:
+    url: jdbc:postgresql://localhost:5432/autopsy_test
+    username: autopsy
+    password: autopsy
+  task:
+    scheduling:
+      pool:
+        size: 0
+
+autopsy:
+  jwt:
+    secret: test-secret-key-for-unit-tests-must-be-at-least-256-bits-long-here
+    expiration-hours: 1
+  github:
+    client-id: test-client-id
+    client-secret: test-client-secret
