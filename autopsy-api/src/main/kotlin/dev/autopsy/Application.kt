@@ -1,5 +1,9 @@
 package dev.autopsy
 
+import dev.autopsy.cli.CliRunner
+import kotlin.system.exitProcess
+
 fun main(args: Array<String>) {
-    println("autopsy: codebase health monitoring tool")
+    val exitCode = CliRunner().run(args)
+    exitProcess(exitCode)
 }
