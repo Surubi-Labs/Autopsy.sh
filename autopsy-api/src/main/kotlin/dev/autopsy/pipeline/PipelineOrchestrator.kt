@@ -30,13 +30,14 @@ class PipelineOrchestrator(
             ?: throw IllegalArgumentException("Repository not found: $repoId")
 
         val run = runRepository.save(AnalysisRun(repoId = repoId))
+        val runId = requireNotNull(run.id) { "AnalysisRun ID must not be null after save" }
 
         val org = orgRepository.findByIdOrNull(repo.orgId)
         val priority = if (org?.plan == "team") 1 else 0
 
         jobProducer.enqueue(
             JobMessage(
-                runId = run.id!!.toString(),
+                runId = runId.toString(),
                 repoId = repoId.toString(),
                 orgId = repo.orgId.toString(),
                 stage = Stage.CLONE,
@@ -44,8 +45,8 @@ class PipelineOrchestrator(
             ),
         )
 
-        logger.info("Triggered analysis run {} for repo {}", run.id!!, repo.name)
-        return run.id!!
+        logger.info("Triggered analysis run {} for repo {}", runId, repo.name)
+        return runId
     }
 
     /**
@@ -53,6 +54,12 @@ class PipelineOrchestrator(
      */
     fun triggerAnalysisForOrg(orgId: UUID): List<UUID> {
         val repos = repoRepository.findActiveByOrgId(orgId)
-        return repos.map { repo -> triggerAnalysis(repo.id!!) }
+        return repos.mapNotNull { repo ->
+            val repoId = repo.id ?: run {
+                logger.warn("Skipping repo with null ID: {}", repo.name)
+                return@mapNotNull null
+            }
+            triggerAnalysis(repoId)
+        }
     }
 }

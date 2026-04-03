@@ -21,7 +21,7 @@ class AnalysisScheduler(
         logger.info("Weekly analysis: triggering {} repos", repos.size)
         for (repo in repos) {
             try {
-                orchestrator.triggerAnalysis(repo.id!!)
+                orchestrator.triggerAnalysis(requireNotNull(repo.id) { "RepoEntity ID must not be null" })
             } catch (e: Exception) {
                 logger.error("Failed to trigger analysis for repo {}: {}", repo.id, e.message)
             }
@@ -35,7 +35,7 @@ class AnalysisScheduler(
         logger.info("Daily analysis: triggering {} repos", repos.size)
         for (repo in repos) {
             try {
-                orchestrator.triggerAnalysis(repo.id!!)
+                orchestrator.triggerAnalysis(requireNotNull(repo.id) { "RepoEntity ID must not be null" })
             } catch (e: Exception) {
                 logger.error("Failed to trigger analysis for repo {}: {}", repo.id, e.message)
             }

@@ -24,9 +24,8 @@ object TestCoverageTrendTracker {
             val weekStart = toWeekStart(commit.timestamp)
             for (fc in commit.filesChanged) {
                 val module = resolveModule(fc.path, modules)
-                val current = moduleWeekData
-                    .getOrPut(module) { mutableMapOf() }
-                    .getOrElse(weekStart) { 0 to 0 }
+                val weekData = moduleWeekData.getOrPut(module) { mutableMapOf() }
+                val current = weekData.getOrDefault(weekStart, 0 to 0)
 
                 val isTest = testSet.contains(fc.path)
                 val updated = if (isTest) {
@@ -35,7 +34,7 @@ object TestCoverageTrendTracker {
                     current.first to (current.second + 1)
                 }
 
-                moduleWeekData[module]!![weekStart] = updated
+                weekData[weekStart] = updated
             }
         }
 

@@ -2,6 +2,7 @@ package dev.autopsy.pipeline
 
 import dev.autopsy.queue.JobConsumer
 import dev.autopsy.queue.Stage
+import jakarta.annotation.PreDestroy
 import org.slf4j.LoggerFactory
 import org.springframework.boot.ApplicationArguments
 import org.springframework.boot.ApplicationRunner
@@ -51,6 +52,7 @@ class MetricsConsumerRunner(
                     jobConsumer.ack(messageId)
 
                 } catch (e: Exception) {
+                    if (Thread.currentThread().isInterrupted) break
                     logger.error("Error processing metrics job", e)
                     // Don't ack — message stays pending for retry
                 }
@@ -58,6 +60,7 @@ class MetricsConsumerRunner(
         }, "metrics-consumer").apply { isDaemon = true }.start()
     }
 
+    @PreDestroy
     fun stop() {
         running = false
     }
