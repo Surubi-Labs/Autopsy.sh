@@ -182,3 +182,62 @@ def update_repo_last_analyzed(
             (sha, str(repo_id)),
         )
     conn.commit()
+
+
+def get_org_delivery_preferences(
+    conn: Connection[Any],
+    org_id: UUID,
+) -> dict[str, Any] | None:
+    """Get delivery preferences for an organization."""
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT email_address, slack_webhook_url, plan"
+            " FROM organizations WHERE id = %s",
+            (str(org_id),),
+        )
+        row = cur.fetchone()
+        if not row:
+            return None
+        return {
+            "email_address": row[0],
+            "slack_webhook_url": row[1],
+            "plan": row[2],
+        }
+
+
+def get_report_by_run_id(
+    conn: Connection[Any],
+    run_id: UUID,
+) -> dict[str, Any] | None:
+    """Get a report by its analysis run ID."""
+    with conn.cursor() as cur:
+        cur.execute(
+            "SELECT id, summary, risk_score, markdown"
+            " FROM reports WHERE run_id = %s",
+            (str(run_id),),
+        )
+        row = cur.fetchone()
+        if not row:
+            return None
+        return {
+            "id": str(row[0]),
+            "summary": row[1],
+            "risk_score": row[2],
+            "markdown": row[3],
+        }
+
+
+def update_report_delivery(
+    conn: Connection[Any],
+    run_id: UUID,
+    delivery_channel: str,
+) -> None:
+    """Update report delivery status."""
+    with conn.cursor() as cur:
+        cur.execute(
+            "UPDATE reports"
+            " SET delivered_at = now(), delivery_channel = %s"
+            " WHERE run_id = %s",
+            (delivery_channel, str(run_id)),
+        )
+    conn.commit()
