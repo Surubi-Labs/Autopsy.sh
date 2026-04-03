@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.*
 import java.time.Instant
+import java.util.Optional
 import java.util.UUID
 import kotlin.test.assertEquals
 
@@ -39,14 +40,14 @@ class PipelineOrchestratorTest {
 
     @Test
     fun `triggerAnalysis creates run and enqueues CLONE`() {
-        whenever(repoRepo.findById(repoId)).thenReturn(testRepo)
-        whenever(runRepo.create(repoId)).thenReturn(testRun)
+        whenever(repoRepo.findById(repoId)).thenReturn(Optional.of(testRepo))
+        whenever(runRepo.save(any<AnalysisRun>())).thenReturn(testRun)
         whenever(jobProducer.enqueue(any())).thenReturn("1234-0")
 
         val result = orchestrator.triggerAnalysis(repoId)
 
         assertEquals(runId, result)
-        verify(runRepo).create(repoId)
+        verify(runRepo).save(any<AnalysisRun>())
         verify(jobProducer).enqueue(argThat {
             this.stage == Stage.CLONE && this.runId == runId.toString()
         })
@@ -54,7 +55,7 @@ class PipelineOrchestratorTest {
 
     @Test
     fun `triggerAnalysis throws for unknown repo`() {
-        whenever(repoRepo.findById(any())).thenReturn(null)
+        whenever(repoRepo.findById(any<UUID>())).thenReturn(Optional.empty())
 
         assertThrows<IllegalArgumentException> {
             orchestrator.triggerAnalysis(UUID.randomUUID())
@@ -66,8 +67,8 @@ class PipelineOrchestratorTest {
         val repo2Id = UUID.randomUUID()
         val repo2 = testRepo.copy(id = repo2Id)
         whenever(repoRepo.findActiveByOrgId(orgId)).thenReturn(listOf(testRepo, repo2))
-        whenever(repoRepo.findById(any())).thenReturn(testRepo)
-        whenever(runRepo.create(any())).thenReturn(testRun)
+        whenever(repoRepo.findById(any<UUID>())).thenReturn(Optional.of(testRepo))
+        whenever(runRepo.save(any<AnalysisRun>())).thenReturn(testRun)
         whenever(jobProducer.enqueue(any())).thenReturn("1234-0")
 
         val results = orchestrator.triggerAnalysisForOrg(orgId)

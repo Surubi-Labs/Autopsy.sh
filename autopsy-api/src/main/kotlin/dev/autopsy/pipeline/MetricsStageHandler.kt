@@ -2,6 +2,7 @@ package dev.autopsy.pipeline
 
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import dev.autopsy.db.entity.Metric
 import dev.autopsy.db.repository.AnalysisRunRepository
 import dev.autopsy.db.repository.ExtractionRepository
 import dev.autopsy.db.repository.MetricRepository
@@ -57,20 +58,20 @@ class MetricsStageHandler(
             val healthScore = HealthScoreComputer.computeHealthScore(churn, busFactor, staleness, testCoverage, hotspots)
 
             // Write metrics to DB
-            metricRepo.save(runId, repoId, null, "health_score", healthScore.overall,
-                mapper.writeValueAsString(healthScore.breakdown))
+            metricRepo.save(Metric(runId = runId, repoId = repoId, modulePath = null, metricType = "health_score",
+                value = healthScore.overall, details = mapper.writeValueAsString(healthScore.breakdown)))
 
             for ((module, bf) in busFactor) {
-                metricRepo.save(runId, repoId, module, "bus_factor", bf.busFactor.toDouble(),
-                    mapper.writeValueAsString(bf))
+                metricRepo.save(Metric(runId = runId, repoId = repoId, modulePath = module, metricType = "bus_factor",
+                    value = bf.busFactor.toDouble(), details = mapper.writeValueAsString(bf)))
             }
 
-            metricRepo.save(runId, repoId, null, "dep_staleness", staleness.overallScore,
-                mapper.writeValueAsString(staleness))
+            metricRepo.save(Metric(runId = runId, repoId = repoId, modulePath = null, metricType = "dep_staleness",
+                value = staleness.overallScore, details = mapper.writeValueAsString(staleness)))
 
             for (hs in hotspots.take(10)) {
-                metricRepo.save(runId, repoId, null, "hotspot", hs.score,
-                    mapper.writeValueAsString(hs))
+                metricRepo.save(Metric(runId = runId, repoId = repoId, modulePath = null, metricType = "hotspot",
+                    value = hs.score, details = mapper.writeValueAsString(hs)))
             }
 
             logger.info("Computed metrics for run {}: health={}", runId, healthScore.overall)
