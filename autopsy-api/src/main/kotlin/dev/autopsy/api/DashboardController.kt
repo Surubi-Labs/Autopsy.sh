@@ -76,14 +76,4 @@ class DashboardController(
         return risks.sortedBy { it.severity }
     }
 
-    @GetMapping("/billing")
-    fun getBilling(@AuthenticationPrincipal auth: AuthenticatedOrg): BillingResponse {
-        val org = orgRepo.findById(auth.orgId)
-        val repoCount = repoRepo.countByOrgId(auth.orgId)
-        return BillingResponse(
-            plan = org?.plan ?: "free",
-            repoLimit = org?.repoLimit ?: 3,
-            repoCount = repoCount,
-        )
-    }
 }
