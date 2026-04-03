@@ -13,47 +13,54 @@ interface AuthState {
   logout: () => void;
 }
 
+interface AuthData {
+  token: string | null;
+  orgId: string | null;
+  orgName: string | null;
+  isLoading: boolean;
+}
+
 const AuthContext = createContext<AuthState | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [token, setToken] = useState<string | null>(null);
-  const [orgId, setOrgId] = useState<string | null>(null);
-  const [orgName, setOrgName] = useState<string | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [authData, setAuthData] = useState<AuthData>({
+    token: null,
+    orgId: null,
+    orgName: null,
+    isLoading: true,
+  });
 
   useEffect(() => {
-    setToken(localStorage.getItem(AUTH_TOKEN_KEY));
-    setOrgId(localStorage.getItem(AUTH_ORG_KEY));
-    setOrgName(localStorage.getItem(AUTH_ORG_NAME_KEY));
-    setIsLoading(false);
+    setAuthData({
+      token: localStorage.getItem(AUTH_TOKEN_KEY),
+      orgId: localStorage.getItem(AUTH_ORG_KEY),
+      orgName: localStorage.getItem(AUTH_ORG_NAME_KEY),
+      isLoading: false,
+    });
   }, []);
 
   const login = useCallback((t: string, oid: string, oname: string) => {
     localStorage.setItem(AUTH_TOKEN_KEY, t);
     localStorage.setItem(AUTH_ORG_KEY, oid);
     localStorage.setItem(AUTH_ORG_NAME_KEY, oname);
-    setToken(t);
-    setOrgId(oid);
-    setOrgName(oname);
+    setAuthData({ token: t, orgId: oid, orgName: oname, isLoading: false });
   }, []);
 
   const logout = useCallback(() => {
     localStorage.removeItem(AUTH_TOKEN_KEY);
     localStorage.removeItem(AUTH_ORG_KEY);
     localStorage.removeItem(AUTH_ORG_NAME_KEY);
-    setToken(null);
-    setOrgId(null);
-    setOrgName(null);
+    setAuthData({ token: null, orgId: null, orgName: null, isLoading: false });
   }, []);
 
   return (
     <AuthContext.Provider
       value={{
-        token,
-        orgId,
-        orgName,
-        isAuthenticated: !!token,
-        isLoading,
+        token: authData.token,
+        orgId: authData.orgId,
+        orgName: authData.orgName,
+        isAuthenticated: !!authData.token,
+        isLoading: authData.isLoading,
         login,
         logout,
       }}

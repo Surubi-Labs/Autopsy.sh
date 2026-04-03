@@ -17,7 +17,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 import { Trash2, Plus } from "lucide-react";
 
@@ -29,8 +28,8 @@ function SettingsContent() {
   const { data: prefs, mutate: mutatePrefs } = useDeliveryPrefs();
   const { data: repos, mutate: mutateRepos } = useRepos();
 
-  const [email, setEmail] = useState("");
-  const [slackUrl, setSlackUrl] = useState("");
+  const [email, setEmail] = useState(prefs?.emailAddress ?? "");
+  const [slackUrl, setSlackUrl] = useState(prefs?.slackWebhookUrl ?? "");
   const [newRepoName, setNewRepoName] = useState("");
   const [newRepoUrl, setNewRepoUrl] = useState("");
   const [showAddRepo, setShowAddRepo] = useState(false);
@@ -38,13 +37,6 @@ function SettingsContent() {
   useEffect(() => {
     if (!authLoading && !isAuthenticated) router.push("/login");
   }, [authLoading, isAuthenticated, router]);
-
-  useEffect(() => {
-    if (prefs) {
-      setEmail(prefs.emailAddress ?? "");
-      setSlackUrl(prefs.slackWebhookUrl ?? "");
-    }
-  }, [prefs]);
 
   useEffect(() => {
     const billingStatus = searchParams.get("billing");
@@ -68,8 +60,12 @@ function SettingsContent() {
   };
 
   const handleUpgrade = async () => {
+    const proPriceId = process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID;
+    if (!proPriceId) {
+      toast.error("Stripe price ID is not configured");
+      return;
+    }
     try {
-      const proPriceId = process.env.NEXT_PUBLIC_STRIPE_PRO_PRICE_ID ?? "";
       const res = await createCheckout(proPriceId);
       window.location.href = res.url;
     } catch {

@@ -3,6 +3,7 @@
 import { use, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { useAuth } from "@/lib/auth-provider";
 import { useMetrics } from "@/lib/hooks/use-repo";
 import { useReports, useReport } from "@/lib/hooks/use-reports";
@@ -11,12 +12,16 @@ import { triggerAnalysis } from "@/lib/api-client";
 import { PageHeader } from "@/components/page-header";
 import { HealthScore } from "@/components/health-score";
 import { RunStatus } from "@/components/run-status";
-import { ReportViewer } from "@/components/report-viewer";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
+
+const ReportViewer = dynamic(
+  () => import("@/components/report-viewer").then((m) => ({ default: m.ReportViewer })),
+  { loading: () => <Skeleton className="h-48" /> }
+);
 import { Play, MessageSquare } from "lucide-react";
 
 export default function RepoDetailPage({

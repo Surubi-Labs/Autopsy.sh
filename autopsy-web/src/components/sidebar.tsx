@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { LayoutDashboard, Settings, Activity } from "lucide-react";
 import { useAuth } from "@/lib/auth-provider";
+import { useBilling } from "@/lib/hooks/use-billing";
 import { Badge } from "@/components/ui/badge";
 
 const navItems = [
@@ -15,6 +16,7 @@ const navItems = [
 export function Sidebar() {
   const pathname = usePathname();
   const { orgName } = useAuth();
+  const { data: billing } = useBilling();
 
   return (
     <aside className="fixed left-0 top-0 z-40 h-screen w-56 border-r border-border bg-card flex flex-col">
@@ -49,8 +51,8 @@ export function Sidebar() {
 
       <div className="p-4 border-t border-border">
         <p className="text-sm font-medium truncate">{orgName ?? "My Org"}</p>
-        <Badge variant="outline" className="mt-1 text-xs">
-          Free
+        <Badge variant="outline" className="mt-1 text-xs capitalize">
+          {billing?.plan ?? "free"}
         </Badge>
       </div>
     </aside>

@@ -1,6 +1,6 @@
 import { cn } from "@/lib/utils";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {}
+type InputProps = React.ComponentProps<"input">;
 
 function Input({ className, type, ...props }: InputProps) {
   return (

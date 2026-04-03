@@ -12,6 +12,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Send, Loader2 } from "lucide-react";
 
 interface Message {
+  id: string;
   role: "user" | "assistant";
   content: string;
   sources?: string[];
@@ -44,19 +45,19 @@ export default function QueryPage({
   const sendQuestion = async (question: string) => {
     if (!question.trim()) return;
     setInput("");
-    setMessages((prev) => [...prev, { role: "user", content: question }]);
+    setMessages((prev) => [...prev, { id: crypto.randomUUID(), role: "user", content: question }]);
     setLoading(true);
 
     try {
       const res = await queryRepo(id, question);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: res.answer, sources: res.sources },
+        { id: crypto.randomUUID(), role: "assistant", content: res.answer, sources: res.sources },
       ]);
     } catch {
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: "Sorry, something went wrong." },
+        { id: crypto.randomUUID(), role: "assistant", content: "Sorry, something went wrong." },
       ]);
     } finally {
       setLoading(false);
@@ -88,8 +89,8 @@ export default function QueryPage({
           </div>
         ) : (
           <div className="space-y-4 pb-4">
-            {messages.map((msg, i) => (
-              <ChatMessage key={i} {...msg} />
+            {messages.map(({ id, ...msg }) => (
+              <ChatMessage key={id} {...msg} />
             ))}
             {loading && (
               <div className="flex items-center gap-2 text-muted-foreground p-4">
