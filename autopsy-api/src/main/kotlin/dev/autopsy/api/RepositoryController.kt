@@ -35,7 +35,9 @@ class RepositoryController(
 
         val currentCount = repoRepo.countByOrgId(auth.orgId)
         if (currentCount >= org.repoLimit) {
-            return ResponseEntity.status(HttpStatus.FORBIDDEN).build()
+            throw RepoLimitExceededException(
+                "Plan '${org.plan}' allows ${org.repoLimit} repos (current: $currentCount). Upgrade at /billing/checkout",
+            )
         }
 
         val repo = repoRepo.save(auth.orgId, request.name, request.gitUrl, request.defaultBranch)
