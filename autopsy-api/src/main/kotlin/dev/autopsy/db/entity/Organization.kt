@@ -10,6 +10,11 @@ data class Organization(
     val plan: String,
     val stripeCustomer: String?,
     val repoLimit: Int,
+    val emailAddress: String?,
+    val slackWebhookUrl: String?,
+    val stripeSubscriptionId: String?,
+    val stripePriceId: String?,
+    val planUpdatedAt: Instant?,
     val createdAt: Instant,
 ) {
     companion object {
@@ -19,6 +24,11 @@ data class Organization(
             plan = rs.getString("plan"),
             stripeCustomer = rs.getString("stripe_customer"),
             repoLimit = rs.getInt("repo_limit"),
+            emailAddress = rs.getString("email_address"),
+            slackWebhookUrl = rs.getString("slack_webhook_url"),
+            stripeSubscriptionId = rs.getString("stripe_subscription_id"),
+            stripePriceId = rs.getString("stripe_price_id"),
+            planUpdatedAt = rs.getTimestamp("plan_updated_at")?.toInstant(),
             createdAt = rs.getTimestamp("created_at").toInstant(),
         )
     }

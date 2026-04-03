@@ -17,8 +17,9 @@ class PipelineOrchestratorTest {
 
     private val runRepo: AnalysisRunRepository = mock()
     private val repoRepo: RepoRepository = mock()
+    private val orgRepo: dev.autopsy.db.repository.OrganizationRepository = mock()
     private val jobProducer: JobProducer = mock()
-    private val orchestrator = PipelineOrchestrator(runRepo, repoRepo, jobProducer)
+    private val orchestrator = PipelineOrchestrator(runRepo, repoRepo, orgRepo, jobProducer)
 
     private val orgId = UUID.randomUUID()
     private val repoId = UUID.randomUUID()

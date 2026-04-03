@@ -38,3 +38,10 @@ autopsy:
     client-secret: ${GITHUB_CLIENT_SECRET:}
   cors:
     allowed-origins: ${CORS_ORIGINS:http://localhost:3000}
+  stripe:
+    secret-key: ${STRIPE_SECRET_KEY:}
+    webhook-secret: ${STRIPE_WEBHOOK_SECRET:}
+    pro-price-id: ${STRIPE_PRO_PRICE_ID:}
+    team-price-id: ${STRIPE_TEAM_PRICE_ID:}
+    success-url: ${STRIPE_SUCCESS_URL:http://localhost:3000/settings?billing=success}
+    cancel-url: ${STRIPE_CANCEL_URL:http://localhost:3000/settings?billing=canceled}
