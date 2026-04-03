@@ -1,8 +1,10 @@
 package dev.autopsy.auth
 
+import dev.autopsy.db.entity.Organization
 import dev.autopsy.db.repository.GitHubUserRepository
 import dev.autopsy.db.repository.OrganizationRepository
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.MediaType
 import org.springframework.stereotype.Service
 import org.springframework.web.client.RestClient
@@ -25,10 +27,10 @@ class GitHubOAuthService(
 
         if (existing != null) {
             gitHubUserRepo.updateAccessToken(ghUser.id, accessToken)
-            val org = orgRepo.findById(existing.orgId)
+            val org = orgRepo.findByIdOrNull(existing.orgId)
                 ?: throw GitHubAuthException("Organization not found for user ${ghUser.login}")
             return AuthenticatedOrg(
-                orgId = org.id,
+                orgId = org.id!!,
                 orgName = org.name,
                 githubUserId = ghUser.id,
                 githubLogin = ghUser.login,
@@ -36,11 +38,18 @@ class GitHubOAuthService(
         }
 
         // New user — create org and github_user
-        val org = orgRepo.save(name = ghUser.name ?: ghUser.login)
-        gitHubUserRepo.save(ghUser.id, ghUser.login, org.id, accessToken)
+        val org = orgRepo.save(Organization(name = ghUser.name ?: ghUser.login))
+        gitHubUserRepo.save(
+            dev.autopsy.db.entity.GitHubUser(
+                githubUserId = ghUser.id,
+                githubLogin = ghUser.login,
+                orgId = org.id!!,
+                accessToken = accessToken,
+            ),
+        )
 
         return AuthenticatedOrg(
-            orgId = org.id,
+            orgId = org.id!!,
             orgName = org.name,
             githubUserId = ghUser.id,
             githubLogin = ghUser.login,

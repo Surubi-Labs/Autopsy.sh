@@ -1,31 +1,19 @@
 package dev.autopsy.db.entity
 
-import java.sql.ResultSet
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 import java.util.UUID
 
+@Table("reports")
 data class Report(
-    val id: UUID,
+    @Id val id: UUID? = null,
     val runId: UUID,
     val repoId: UUID,
     val markdown: String,
-    val summary: String?,
-    val riskScore: Double?,
-    val deliveredAt: Instant?,
-    val deliveryChannel: String?,
-    val createdAt: Instant,
-) {
-    companion object {
-        fun fromRow(rs: ResultSet): Report = Report(
-            id = rs.getObject("id", UUID::class.java),
-            runId = rs.getObject("run_id", UUID::class.java),
-            repoId = rs.getObject("repo_id", UUID::class.java),
-            markdown = rs.getString("markdown"),
-            summary = rs.getString("summary"),
-            riskScore = rs.getObject("risk_score") as? Double,
-            deliveredAt = rs.getTimestamp("delivered_at")?.toInstant(),
-            deliveryChannel = rs.getString("delivery_channel"),
-            createdAt = rs.getTimestamp("created_at").toInstant(),
-        )
-    }
-}
+    val summary: String? = null,
+    val riskScore: Double? = null,
+    val deliveredAt: Instant? = null,
+    val deliveryChannel: String? = null,
+    val createdAt: Instant? = null,
+)

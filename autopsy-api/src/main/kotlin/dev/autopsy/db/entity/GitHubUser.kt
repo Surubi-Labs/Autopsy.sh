@@ -1,27 +1,17 @@
 package dev.autopsy.db.entity
 
-import java.sql.ResultSet
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 import java.util.UUID
 
+@Table("github_users")
 data class GitHubUser(
-    val id: UUID,
+    @Id val id: UUID? = null,
     val githubUserId: Long,
     val githubLogin: String,
     val orgId: UUID,
-    val accessToken: String?,
-    val createdAt: Instant,
-    val updatedAt: Instant,
-) {
-    companion object {
-        fun fromRow(rs: ResultSet): GitHubUser = GitHubUser(
-            id = rs.getObject("id", UUID::class.java),
-            githubUserId = rs.getLong("github_user_id"),
-            githubLogin = rs.getString("github_login"),
-            orgId = rs.getObject("org_id", UUID::class.java),
-            accessToken = rs.getString("access_token"),
-            createdAt = rs.getTimestamp("created_at").toInstant(),
-            updatedAt = rs.getTimestamp("updated_at").toInstant(),
-        )
-    }
-}
+    val accessToken: String? = null,
+    val createdAt: Instant? = null,
+    val updatedAt: Instant? = null,
+)

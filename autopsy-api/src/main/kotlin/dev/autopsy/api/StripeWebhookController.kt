@@ -46,7 +46,7 @@ class StripeWebhookController(
         val customerId = data.customer ?: return
         val subscriptionId = data.subscription ?: return
 
-        val org = orgRepo.findByStripeCustomerId(customerId) ?: run {
+        val org = orgRepo.findByStripeCustomer(customerId) ?: run {
             logger.warn("No org found for Stripe customer: {}", customerId)
             return
         }
@@ -57,7 +57,7 @@ class StripeWebhookController(
         val plan = planLimits.planForPriceId(priceId) ?: "pro"
         val repoLimit = PlanLimits.repoLimitForPlan(plan)
 
-        orgRepo.updatePlan(org.id, plan, repoLimit, subscriptionId, priceId)
+        orgRepo.updatePlan(org.id!!, plan, repoLimit, subscriptionId, priceId)
         logger.info("Org {} upgraded to {} via checkout", org.id, plan)
     }
 
@@ -65,13 +65,13 @@ class StripeWebhookController(
         val subscription = event.dataObjectDeserializer.`object`.orElse(null) as? Subscription ?: return
         val customerId = subscription.customer ?: return
 
-        val org = orgRepo.findByStripeCustomerId(customerId) ?: return
+        val org = orgRepo.findByStripeCustomer(customerId) ?: return
 
         val priceId = subscription.items.data.firstOrNull()?.price?.id ?: return
         val plan = planLimits.planForPriceId(priceId) ?: return
         val repoLimit = PlanLimits.repoLimitForPlan(plan)
 
-        orgRepo.updatePlan(org.id, plan, repoLimit, subscription.id, priceId)
+        orgRepo.updatePlan(org.id!!, plan, repoLimit, subscription.id, priceId)
         logger.info("Org {} plan updated to {}", org.id, plan)
     }
 
@@ -79,9 +79,9 @@ class StripeWebhookController(
         val subscription = event.dataObjectDeserializer.`object`.orElse(null) as? Subscription ?: return
         val customerId = subscription.customer ?: return
 
-        val org = orgRepo.findByStripeCustomerId(customerId) ?: return
+        val org = orgRepo.findByStripeCustomer(customerId) ?: return
 
-        orgRepo.updatePlan(org.id, "free", PlanLimits.repoLimitForPlan("free"), null, null)
+        orgRepo.updatePlan(org.id!!, "free", PlanLimits.repoLimitForPlan("free"), null, null)
         logger.info("Org {} downgraded to free", org.id)
     }
 }

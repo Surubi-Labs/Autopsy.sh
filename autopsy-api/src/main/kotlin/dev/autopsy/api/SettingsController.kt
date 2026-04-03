@@ -2,6 +2,7 @@ package dev.autopsy.api
 
 import dev.autopsy.auth.AuthenticatedOrg
 import dev.autopsy.db.repository.OrganizationRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -16,7 +17,7 @@ class SettingsController(
     fun getDeliveryPreferences(
         @AuthenticationPrincipal auth: AuthenticatedOrg,
     ): DeliveryPreferencesResponse {
-        val org = orgRepo.findById(auth.orgId)
+        val org = orgRepo.findByIdOrNull(auth.orgId)
         return DeliveryPreferencesResponse(
             emailAddress = org?.emailAddress,
             slackWebhookUrl = org?.slackWebhookUrl,

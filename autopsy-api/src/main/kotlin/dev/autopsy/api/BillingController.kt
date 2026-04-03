@@ -6,6 +6,7 @@ import dev.autopsy.billing.PlanLimits
 import dev.autopsy.billing.StripeService
 import dev.autopsy.db.repository.OrganizationRepository
 import dev.autopsy.db.repository.RepoRepository
+import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.web.bind.annotation.*
@@ -22,7 +23,7 @@ class BillingController(
 
     @GetMapping
     fun getBilling(@AuthenticationPrincipal auth: AuthenticatedOrg): BillingResponse {
-        val org = orgRepo.findById(auth.orgId)
+        val org = orgRepo.findByIdOrNull(auth.orgId)
         val repoCount = repoRepo.countByOrgId(auth.orgId)
         return BillingResponse(
             plan = org?.plan ?: "free",
@@ -36,7 +37,7 @@ class BillingController(
         @AuthenticationPrincipal auth: AuthenticatedOrg,
         @RequestBody request: CheckoutRequest,
     ): ResponseEntity<CheckoutResponse> {
-        val org = orgRepo.findById(auth.orgId)
+        val org = orgRepo.findByIdOrNull(auth.orgId)
             ?: return ResponseEntity.notFound().build()
 
         val plan = planLimits.planForPriceId(request.priceId)

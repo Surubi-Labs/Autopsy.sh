@@ -24,7 +24,7 @@ class MetricsController(
         val metrics = metricRepo.findLatestByRepoIdGrouped(id)
         val healthScore = metrics.find { it.metricType == "health_score" }?.value
         val breakdown = metrics.associate { it.metricType to it.value }
-        val computedAt = metrics.maxOfOrNull { it.computedAt }
+        val computedAt = metrics.mapNotNull { it.computedAt }.maxOrNull()
         return MetricsSummaryResponse(id, healthScore, breakdown, computedAt)
     }
 

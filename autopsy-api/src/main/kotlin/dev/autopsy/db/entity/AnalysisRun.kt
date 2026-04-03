@@ -1,31 +1,19 @@
 package dev.autopsy.db.entity
 
-import java.sql.ResultSet
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 import java.util.UUID
 
+@Table("analysis_runs")
 data class AnalysisRun(
-    val id: UUID,
+    @Id val id: UUID? = null,
     val repoId: UUID,
-    val status: String,
-    val currentStage: String?,
-    val startedAt: Instant?,
-    val completedAt: Instant?,
-    val error: String?,
-    val commitRange: String?,
-    val createdAt: Instant,
-) {
-    companion object {
-        fun fromRow(rs: ResultSet): AnalysisRun = AnalysisRun(
-            id = rs.getObject("id", UUID::class.java),
-            repoId = rs.getObject("repo_id", UUID::class.java),
-            status = rs.getString("status"),
-            currentStage = rs.getString("current_stage"),
-            startedAt = rs.getTimestamp("started_at")?.toInstant(),
-            completedAt = rs.getTimestamp("completed_at")?.toInstant(),
-            error = rs.getString("error"),
-            commitRange = rs.getString("commit_range"),
-            createdAt = rs.getTimestamp("created_at").toInstant(),
-        )
-    }
-}
+    val status: String = "queued",
+    val currentStage: String? = null,
+    val startedAt: Instant? = null,
+    val completedAt: Instant? = null,
+    val error: String? = null,
+    val commitRange: String? = null,
+    val createdAt: Instant? = null,
+)

@@ -1,35 +1,21 @@
 package dev.autopsy.db.entity
 
-import java.sql.ResultSet
+import org.springframework.data.annotation.Id
+import org.springframework.data.relational.core.mapping.Table
 import java.time.Instant
 import java.util.UUID
 
+@Table("organizations")
 data class Organization(
-    val id: UUID,
+    @Id val id: UUID? = null,
     val name: String,
-    val plan: String,
-    val stripeCustomer: String?,
-    val repoLimit: Int,
-    val emailAddress: String?,
-    val slackWebhookUrl: String?,
-    val stripeSubscriptionId: String?,
-    val stripePriceId: String?,
-    val planUpdatedAt: Instant?,
-    val createdAt: Instant,
-) {
-    companion object {
-        fun fromRow(rs: ResultSet): Organization = Organization(
-            id = rs.getObject("id", UUID::class.java),
-            name = rs.getString("name"),
-            plan = rs.getString("plan"),
-            stripeCustomer = rs.getString("stripe_customer"),
-            repoLimit = rs.getInt("repo_limit"),
-            emailAddress = rs.getString("email_address"),
-            slackWebhookUrl = rs.getString("slack_webhook_url"),
-            stripeSubscriptionId = rs.getString("stripe_subscription_id"),
-            stripePriceId = rs.getString("stripe_price_id"),
-            planUpdatedAt = rs.getTimestamp("plan_updated_at")?.toInstant(),
-            createdAt = rs.getTimestamp("created_at").toInstant(),
-        )
-    }
-}
+    val plan: String = "free",
+    val stripeCustomer: String? = null,
+    val repoLimit: Int = 1,
+    val emailAddress: String? = null,
+    val slackWebhookUrl: String? = null,
+    val stripeSubscriptionId: String? = null,
+    val stripePriceId: String? = null,
+    val planUpdatedAt: Instant? = null,
+    val createdAt: Instant? = null,
+)
