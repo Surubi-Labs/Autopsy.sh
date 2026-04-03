@@ -56,7 +56,7 @@ class StripeService(
             .setName(org.name)
             .build()
         val customer = com.stripe.model.Customer.create(params)
-        orgRepo.updateStripeCustomer(org.id!!, customer.id)
+        orgRepo.updateStripeCustomer(requireNotNull(org.id) { "Organization ID must not be null" }, customer.id)
         return customer.id
     }
 }

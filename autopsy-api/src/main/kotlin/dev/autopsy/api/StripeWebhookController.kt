@@ -57,7 +57,7 @@ class StripeWebhookController(
         val plan = planLimits.planForPriceId(priceId) ?: "pro"
         val repoLimit = PlanLimits.repoLimitForPlan(plan)
 
-        orgRepo.updatePlan(org.id!!, plan, repoLimit, subscriptionId, priceId)
+        orgRepo.updatePlan(requireNotNull(org.id) { "Organization ID must not be null" }, plan, repoLimit, subscriptionId, priceId)
         logger.info("Org {} upgraded to {} via checkout", org.id, plan)
     }
 
@@ -71,7 +71,7 @@ class StripeWebhookController(
         val plan = planLimits.planForPriceId(priceId) ?: return
         val repoLimit = PlanLimits.repoLimitForPlan(plan)
 
-        orgRepo.updatePlan(org.id!!, plan, repoLimit, subscription.id, priceId)
+        orgRepo.updatePlan(requireNotNull(org.id) { "Organization ID must not be null" }, plan, repoLimit, subscription.id, priceId)
         logger.info("Org {} plan updated to {}", org.id, plan)
     }
 
@@ -81,7 +81,7 @@ class StripeWebhookController(
 
         val org = orgRepo.findByStripeCustomer(customerId) ?: return
 
-        orgRepo.updatePlan(org.id!!, "free", PlanLimits.repoLimitForPlan("free"), null, null)
+        orgRepo.updatePlan(requireNotNull(org.id) { "Organization ID must not be null" }, "free", PlanLimits.repoLimitForPlan("free"), null, null)
         logger.info("Org {} downgraded to free", org.id)
     }
 }

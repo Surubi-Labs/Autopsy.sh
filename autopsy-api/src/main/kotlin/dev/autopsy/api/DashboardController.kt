@@ -23,10 +23,11 @@ class DashboardController(
         val repos = repoRepo.findByOrgId(auth.orgId)
 
         val repoSummaries = repos.map { repo ->
-            val metrics = metricRepo.findLatestByRepoIdGrouped(repo.id!!)
+            val repoId = requireNotNull(repo.id) { "RepoEntity ID must not be null" }
+            val metrics = metricRepo.findLatestByRepoIdGrouped(repoId)
             val healthScore = metrics.find { it.metricType == "health_score" }?.value
             RepoHealthSummary(
-                repoId = repo.id!!,
+                repoId = repoId,
                 name = repo.name,
                 healthScore = healthScore,
                 lastAnalyzedAt = repo.lastAnalyzedAt,
@@ -43,16 +44,18 @@ class DashboardController(
 
     @GetMapping("/dashboard/risks")
     fun getRisks(@AuthenticationPrincipal auth: AuthenticatedOrg): List<RiskItem> {
-        val repos = repoRepo.findByOrgId(auth.orgId)
+        // TODO: N+1 query pattern — replace with a single bulk metrics query per org
+        val repos = repoRepo.findByOrgId(auth.orgId).take(50)
         val risks = mutableListOf<RiskItem>()
 
         for (repo in repos) {
-            val metrics = metricRepo.findLatestByRepoIdGrouped(repo.id!!)
+            val repoId = requireNotNull(repo.id) { "RepoEntity ID must not be null" }
+            val metrics = metricRepo.findLatestByRepoIdGrouped(repoId)
             for (metric in metrics) {
                 if (metric.metricType == "bus_factor" && metric.value <= 1.0) {
                     risks.add(
                         RiskItem(
-                            repoId = repo.id!!,
+                            repoId = repoId,
                             repoName = repo.name,
                             riskType = "bus_factor",
                             severity = "critical",
@@ -63,7 +66,7 @@ class DashboardController(
                 if (metric.metricType == "dep_staleness" && metric.value < 50.0) {
                     risks.add(
                         RiskItem(
-                            repoId = repo.id!!,
+                            repoId = repoId,
                             repoName = repo.name,
                             riskType = "dependency",
                             severity = "warning",
@@ -74,7 +77,7 @@ class DashboardController(
             }
         }
 
-        return risks.sortedBy { it.severity }
+        return risks.sortedBy { it.severity }.take(20)
     }
 
 }

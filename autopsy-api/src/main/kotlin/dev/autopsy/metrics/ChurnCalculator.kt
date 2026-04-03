@@ -4,7 +4,6 @@ import dev.autopsy.extraction.CommitExtraction
 import java.time.LocalDate
 import java.time.OffsetDateTime
 import java.time.temporal.WeekFields
-import java.util.Locale
 
 object ChurnCalculator {
 
@@ -44,7 +43,7 @@ object ChurnCalculator {
 
 internal fun toWeekStart(timestamp: String): LocalDate {
     val date = OffsetDateTime.parse(timestamp).toLocalDate()
-    val weekFields = WeekFields.of(Locale.getDefault())
+    val weekFields = WeekFields.ISO
     val dayOfWeek = date.get(weekFields.dayOfWeek())
     return date.minusDays((dayOfWeek - 1).toLong())
 }

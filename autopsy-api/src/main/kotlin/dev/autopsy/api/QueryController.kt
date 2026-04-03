@@ -20,7 +20,7 @@ class QueryController(
     ): QueryResponse {
         orgScoped.getRepoOrThrow(id, auth.orgId)
         return QueryResponse(
-            answer = "RAG query not yet implemented. Your question: ${request.question}",
+            answer = "RAG query is not yet implemented.",
             sources = emptyList(),
         )
     }

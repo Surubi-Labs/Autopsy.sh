@@ -30,7 +30,7 @@ class GitHubOAuthService(
             val org = orgRepo.findByIdOrNull(existing.orgId)
                 ?: throw GitHubAuthException("Organization not found for user ${ghUser.login}")
             return AuthenticatedOrg(
-                orgId = org.id!!,
+                orgId = requireNotNull(org.id) { "Organization ID must not be null" },
                 orgName = org.name,
                 githubUserId = ghUser.id,
                 githubLogin = ghUser.login,
@@ -39,17 +39,18 @@ class GitHubOAuthService(
 
         // New user — create org and github_user
         val org = orgRepo.save(Organization(name = ghUser.name ?: ghUser.login))
+        val orgId = requireNotNull(org.id) { "Organization ID must not be null after save" }
         gitHubUserRepo.save(
             dev.autopsy.db.entity.GitHubUser(
                 githubUserId = ghUser.id,
                 githubLogin = ghUser.login,
-                orgId = org.id!!,
+                orgId = orgId,
                 accessToken = accessToken,
             ),
         )
 
         return AuthenticatedOrg(
-            orgId = org.id!!,
+            orgId = orgId,
             orgName = org.name,
             githubUserId = ghUser.id,
             githubLogin = ghUser.login,

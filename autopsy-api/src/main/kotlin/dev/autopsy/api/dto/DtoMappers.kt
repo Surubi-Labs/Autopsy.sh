@@ -4,9 +4,10 @@ import dev.autopsy.db.entity.AnalysisRun
 import dev.autopsy.db.entity.Metric
 import dev.autopsy.db.entity.RepoEntity
 import dev.autopsy.db.entity.Report
+import java.time.Instant
 
 fun RepoEntity.toResponse(): RepoResponse = RepoResponse(
-    id = id!!,
+    id = requireNotNull(id) { "RepoEntity ID must not be null" },
     name = name,
     gitUrl = gitUrl,
     defaultBranch = defaultBranch,
@@ -14,11 +15,11 @@ fun RepoEntity.toResponse(): RepoResponse = RepoResponse(
     active = active,
     lastAnalyzedSha = lastAnalyzedSha,
     lastAnalyzedAt = lastAnalyzedAt,
-    createdAt = createdAt!!,
+    createdAt = createdAt ?: Instant.now(),
 )
 
 fun AnalysisRun.toResponse(): RunResponse = RunResponse(
-    id = id!!,
+    id = requireNotNull(id) { "AnalysisRun ID must not be null" },
     repoId = repoId,
     status = status,
     currentStage = currentStage,
@@ -26,32 +27,32 @@ fun AnalysisRun.toResponse(): RunResponse = RunResponse(
     completedAt = completedAt,
     error = error,
     commitRange = commitRange,
-    createdAt = createdAt!!,
+    createdAt = createdAt ?: Instant.now(),
 )
 
 fun Metric.toResponse(): MetricResponse = MetricResponse(
-    id = id!!,
+    id = requireNotNull(id) { "Metric ID must not be null" },
     modulePath = modulePath,
     metricType = metricType,
     value = value,
     details = details,
-    computedAt = computedAt!!,
+    computedAt = computedAt ?: Instant.now(),
 )
 
 fun Report.toSummaryResponse(): ReportSummaryResponse = ReportSummaryResponse(
-    id = id!!,
+    id = requireNotNull(id) { "Report ID must not be null" },
     runId = runId,
     summary = summary,
     riskScore = riskScore,
-    createdAt = createdAt!!,
+    createdAt = createdAt ?: Instant.now(),
 )
 
 fun Report.toDetailResponse(): ReportDetailResponse = ReportDetailResponse(
-    id = id!!,
+    id = requireNotNull(id) { "Report ID must not be null" },
     runId = runId,
     repoId = repoId,
     markdown = markdown,
     summary = summary,
     riskScore = riskScore,
-    createdAt = createdAt!!,
+    createdAt = createdAt ?: Instant.now(),
 )

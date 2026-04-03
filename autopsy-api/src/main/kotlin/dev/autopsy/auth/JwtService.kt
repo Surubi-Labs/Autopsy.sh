@@ -1,7 +1,11 @@
 package dev.autopsy.auth
 
+import io.jsonwebtoken.ExpiredJwtException
+import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import io.jsonwebtoken.security.Keys
+import io.jsonwebtoken.security.SignatureException
+import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import java.util.Date
@@ -14,6 +18,7 @@ class JwtService(
     @Value("\${autopsy.jwt.expiration-hours}") private val expirationHours: Long,
 ) {
 
+    private val logger = LoggerFactory.getLogger(JwtService::class.java)
     private val key: SecretKey = Keys.hmacShaKeyFor(secret.toByteArray())
 
     fun generateToken(auth: AuthenticatedOrg): String {
@@ -45,7 +50,17 @@ class JwtService(
                 githubUserId = (claims["githubUserId"] as? Number)?.toLong() ?: 0L,
                 githubLogin = claims["githubLogin"] as? String ?: "",
             )
-        } catch (_: Exception) {
+        } catch (e: ExpiredJwtException) {
+            logger.warn("JWT token expired: {}", e.message)
+            null
+        } catch (e: SignatureException) {
+            logger.error("Invalid JWT signature: {}", e.message)
+            null
+        } catch (e: JwtException) {
+            logger.warn("JWT validation failed: {}", e.message)
+            null
+        } catch (e: Exception) {
+            logger.error("Unexpected error validating JWT", e)
             null
         }
     }
