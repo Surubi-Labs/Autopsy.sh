@@ -8,6 +8,7 @@ data class JobMessage(
     val orgId: String,
     val stage: Stage,
     val payload: Map<String, String> = emptyMap(),
+    val priority: Int = 0,
 ) {
     fun toMap(): Map<String, String> = buildMap {
         put("runId", runId)
@@ -16,6 +17,9 @@ data class JobMessage(
         put("stage", stage.name)
         if (payload.isNotEmpty()) {
             put("payload", MAPPER.writeValueAsString(payload))
+        }
+        if (priority > 0) {
+            put("priority", priority.toString())
         }
     }
 
@@ -31,6 +35,7 @@ data class JobMessage(
             payload = map["payload"]?.let {
                 MAPPER.readValue(it, Map::class.java) as Map<String, String>
             } ?: emptyMap(),
+            priority = map["priority"]?.toIntOrNull() ?: 0,
         )
     }
 }

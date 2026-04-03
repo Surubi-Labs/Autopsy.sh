@@ -2,6 +2,7 @@ package dev.autopsy.pipeline
 
 import dev.autopsy.db.entity.AnalysisRun
 import dev.autopsy.db.repository.AnalysisRunRepository
+import dev.autopsy.db.repository.OrganizationRepository
 import dev.autopsy.db.repository.RepoRepository
 import dev.autopsy.queue.JobMessage
 import dev.autopsy.queue.JobProducer
@@ -15,6 +16,7 @@ import java.util.UUID
 class PipelineOrchestrator(
     private val runRepository: AnalysisRunRepository,
     private val repoRepository: RepoRepository,
+    private val orgRepository: OrganizationRepository,
     private val jobProducer: JobProducer,
 ) {
     private val logger = LoggerFactory.getLogger(PipelineOrchestrator::class.java)
@@ -29,12 +31,16 @@ class PipelineOrchestrator(
 
         val run = runRepository.save(AnalysisRun(repoId = repoId))
 
+        val org = orgRepository.findByIdOrNull(repo.orgId)
+        val priority = if (org?.plan == "team") 1 else 0
+
         jobProducer.enqueue(
             JobMessage(
                 runId = run.id!!.toString(),
                 repoId = repoId.toString(),
                 orgId = repo.orgId.toString(),
                 stage = Stage.CLONE,
+                priority = priority,
             ),
         )
 

@@ -1,5 +1,6 @@
 package dev.autopsy.api
 
+import com.stripe.exception.StripeException
 import dev.autopsy.auth.GitHubAuthException
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
@@ -30,6 +31,12 @@ class GlobalExceptionHandler {
     @ExceptionHandler(RepoLimitExceededException::class)
     fun handleRepoLimit(ex: RepoLimitExceededException): ProblemDetail {
         return ProblemDetail.forStatusAndDetail(HttpStatus.FORBIDDEN, ex.message ?: "Repository limit exceeded")
+    }
+
+    @ExceptionHandler(StripeException::class)
+    fun handleStripeError(ex: StripeException): ProblemDetail {
+        logger.error("Stripe error: {}", ex.message)
+        return ProblemDetail.forStatusAndDetail(HttpStatus.BAD_GATEWAY, "Payment service error")
     }
 
     @ExceptionHandler(Exception::class)
